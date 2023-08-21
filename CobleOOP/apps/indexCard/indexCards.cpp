@@ -15,11 +15,11 @@ auto f2 = [](IndexCard thing)->void {thing.printCard();};
 auto f3 = [](IndexCard thing)->void 
 {
     ofstream fileOut;
-    fileOut.open("indexCardOutput.txt", std::ios::app);
+    fileOut.open("../../../indexCardOutput.txt", std::ios::app);
     fileOut << thing.getIndex() << " " << thing.getKeyword() << std::endl;
     fileOut.close();
 };
-
+//E:\Git Client\ExampleGit\cs417.coble\CobleOOP\docs
 
 Tree<IndexCard> readToTree()
 {
@@ -27,7 +27,7 @@ Tree<IndexCard> readToTree()
     int tempIndex = -1;
     string tempStr = "";
     IndexCard tempCard;
-    fileIn.open("indexCards.txt");
+    fileIn.open("../../../indexCards.txt");
     if (!fileIn.is_open())
     {
         std::cerr << "Error opening file.\n";
@@ -54,7 +54,7 @@ Tree<IndexCard> readToTree()
 void writeToFile(Tree<IndexCard> tree)
 {
     ofstream fileOut;
-    fileOut.open("indexCardOutput.txt");
+    fileOut.open("../../../indexCardOutput.txt");
     fileOut.close();
     tree.inorder(f3);
 }
