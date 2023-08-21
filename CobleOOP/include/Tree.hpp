@@ -117,7 +117,10 @@ public:
         else if (y < x)
             return Tree(left(), y, right().insert(x));
         else
+        {
+            numberOfNodes--;
             return *this; // no duplicates
+        }
     }
 
     bool member(T x) const {
@@ -137,9 +140,9 @@ public:
             return false;
         T y = root();
         if (x < y)
-            return left().find(x);
+            return left().find(x,foundValue);
         else if (y < x)
-            return right().find(x);
+            return right().find(x,foundValue);
         else {
           foundValue = y;
           return true;
@@ -188,7 +191,7 @@ public:
         return root; //return left-most leaf
     }
 
-    void remove(const T deletionVal, std::shared_ptr<Node>& subRoot)             
+    void remove( T deletionVal, std::shared_ptr<Node>& subRoot)             
     {
         if (subRoot == nullptr)
             return;
