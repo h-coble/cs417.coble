@@ -59,78 +59,69 @@ void writeToFile(Tree<IndexCard> tree)
     tree.inorder(f3);
 }
 
-int main(int argc, const char * argv[]) {
-
+IndexCard createCard()
+{
+    int index=0;
+    std::string keyword = "";
     
-    IndexCard aCard(1, "first"), anotherCard(2,"second");       //Create two index cards
-    Tree<IndexCard> aTree({aCard,anotherCard});                 //Create a tree with this list of cards.
+    std::cout << "Enter your desired index: ";
+    std::cin >> index;
+    std::cout << "Enter your keyword: ";
+    std::cin >> keyword;
     
-    //Verify Tree
-    std::cout << "Verify that tree was built\n";
-    std::cout << "Preorder: \n";
-    aTree.preorder(f2);
-    std::cout << "\nIn-order: \n";
-    aTree.inorder(f2);
-    std::cout << "\nPostorder: \n";
-    aTree.postorder(f2);
-    std::cout << std::endl;
+    IndexCard outCard(index, keyword);
 
-    //Card setters and tree insertion tests
-    aCard.setIndex(4);
-    aCard.setKeyword("four");
-    aTree = aTree.insert(aCard);
+    return outCard;
+}
 
-    aCard.setIndex(5);
-    aCard.setKeyword("five");
-    aTree = aTree.insert(aCard);
+int main(int argc, const char * argv[]) 
+{
+    IndexCard initialCard(-1,"initial");
+    Tree<IndexCard> deck({ initialCard });
+    bool firstInsert = true;
 
-    aCard.setIndex(3);
-    aCard.setKeyword("three");
-    aTree = aTree.insert(aCard);
+    int choice = 4;
+    do
+    {
+        std::cout << "1. Create Index Card\n"
+            << "2. Create Deck of Index Cards from File\n"
+            << "3. Write Deck of Index Cards to File\n"
+            << "4. Print Deck of Cards to Screen\n"
+            << "0. Exit\n"
+            << "Enter your selection: ";
+        std::cin >> choice;
 
-    //Check that tree is properly formed
-    std::cout << "Verify that insertions worked\n";
-    std::cout << "Preorder: \n";
-    aTree.preorder(f2);
-    std::cout << "\nIn-order: \n";
-    aTree.inorder(f2);
-    std::cout << "\nPostorder: \n";
-    aTree.postorder(f2);
-    std::cout << std::endl;
+        std::cout << endl;
 
-    //Delete a card from Tree and verify it's gone
-    std::cout << "Deleting this card -->\t"; anotherCard.printCard();
-    aTree.remove(anotherCard,aTree.rootNode());
+        switch (choice)
+        {
+        case 0:
+            return 0;
+            break;
 
-    std::cout << "Preorder: \n";
-    aTree.preorder(f2);
-    std::cout << "\nIn-order: \n";
-    aTree.inorder(f2);
-    std::cout << "\nPostorder: \n";
-    aTree.postorder(f2);
-    std::cout << std::endl;
+        case 1:
+            deck = deck.insert({ createCard() });
+            if (firstInsert)
+            {
+                deck.remove(initialCard, deck.rootNode());//Doesn't work, needs to change how/when Tree is created
+                firstInsert = false;
+            }
+            break;
+        case 2:
+            deck = readToTree();
+            break;
+        case 3:
+            writeToFile(deck);
+            break;
+        case 4:
+            deck.inorder(f2);
+            break;
+        default:
+            cout << "Invalid choice, try again.\n\n";
+            break;
+        }
+    } while (true);
 
-    //Delete again
-    aTree.remove(anotherCard, aTree.rootNode());
-    std::cout << "Verify that an invalid deletion doesn't affect tree; attempted to delete the same card.\n";
-    aTree.preorder(f2);
-    std::cout << "\nIn-order: \n";
-    aTree.inorder(f2);
-    std::cout << "\nPostorder: \n";
-    aTree.postorder(f2);
-    std::cout << std::endl;
-
-    std::cout << "Bool return from .find: " << aTree.find(anotherCard, aCard) <<std::endl;
-
-    //File In
-    Tree<IndexCard>anotherTree;
-    anotherTree = readToTree();
-
-    //Check for new insertions.
-    std::cout << "\n Tree From File In-order: \n";
-    anotherTree.inorder(f2);
-  
-    writeToFile(anotherTree);
-
-    return 0;
+        return -1;
+ 
 }
