@@ -19,7 +19,7 @@ auto f3 = [](IndexCard thing)->void
     fileOut << thing.getIndex() << " " << thing.getKeyword() << std::endl;
     fileOut.close();
 };
-//E:\Git Client\ExampleGit\cs417.coble\CobleOOP\docs
+
 
 Tree<IndexCard> readToTree()
 {
@@ -31,7 +31,7 @@ Tree<IndexCard> readToTree()
     if (!fileIn.is_open())
     {
         std::cerr << "Error opening file.\n";
-        Tree<IndexCard> tree;   //Does nothing
+        Tree<IndexCard> tree;   //Creates empty tree to return
     }
 
     //Create tree from first card
@@ -48,6 +48,7 @@ Tree<IndexCard> readToTree()
         tree = tree.insert(tempCard);
     }
     fileIn.close();
+    std::cout << "\nFile read succesfully, new deck was created!\n";
     return tree;
 }
 
@@ -57,6 +58,8 @@ void writeToFile(Tree<IndexCard> tree)
     fileOut.open("../../../indexCardOutput.txt");
     fileOut.close();
     tree.inorder(f3);
+
+    std::cout << "Deck succesfully saved to indexCardOutput.txt\n\n";
 }
 
 IndexCard createCard()
@@ -74,54 +77,113 @@ IndexCard createCard()
     return outCard;
 }
 
+Tree<IndexCard> manuallyCreateTree()
+{
+    //Used to create inital deck if opted for
+    int index;
+    std::string keyword;
+    std::cout << "First card index: ";
+    std::cin >> index;
+    std::cout << "First card keyword: ";
+    std::cin >> keyword;
+
+    IndexCard first(index, keyword);
+
+    Tree<IndexCard> treeReturn({first});
+
+    return treeReturn;
+}
+
+void deleteCardFromDeck(Tree<IndexCard>& TreeDel)
+{
+    std::cout << "The card with matching information will be deleted.\n";
+    IndexCard deleteCard = createCard();
+    TreeDel.remove(deleteCard, TreeDel.rootNode());
+}
+
 int main(int argc, const char * argv[]) 
 {
-    IndexCard initialCard(-1,"initial");
-    Tree<IndexCard> deck({ initialCard });
-    bool firstInsert = true;
+    Tree<IndexCard> deck;
 
     int choice = 4;
+    
     do
     {
-        std::cout << "1. Create Index Card\n"
-            << "2. Create Deck of Index Cards from File\n"
+        std::cout << "=========================================\n\n";
+        std::cout << "To create a deck of index cards, one card is required.\nWould you like to manually create one or read from a file?\n"
+            << "1. Manual\n"
+            << "2. Read from file\n";
+        std::cin >> choice;
+
+        if (choice == 1)
+        {
+            deck = manuallyCreateTree();
+            break;
+        }
+        else if (choice == 2)
+        {
+            deck = readToTree();
+            break;
+        }
+        else
+            std::cerr << "Invalid input, try again.\n\n";
+    } while (true);
+        
+
+    do
+    {
+        std::cout << "=========================================\n\n"; //Closes section, used just to organize display
+        std::cout << "*****************************************"      //Opens menu section, same as above
+            <<"\n1.Create Index Card\n"
+            << "2. Create Deck of Index Cards from File (overwrites current deck)\n"
             << "3. Write Deck of Index Cards to File\n"
             << "4. Print Deck of Cards to Screen\n"
+            << "5. Remove Index Card\n"
             << "0. Exit\n"
             << "Enter your selection: ";
         std::cin >> choice;
-
-        std::cout << endl;
+        std::cout << "*****************************************\n\n";   //close menu section
+        std::cout << "=========================================\n";     //open selected operation section
 
         switch (choice)
         {
         case 0:
+            std::cout << "Closing program...\n";
+            std::cout << "=========================================\n\n";
             return 0;
             break;
 
         case 1:
-            deck = deck.insert({ createCard() });
-            if (firstInsert)
-            {
-                deck.remove(initialCard, deck.rootNode());//Doesn't work, needs to change how/when Tree is created
-                firstInsert = false;
-            }
+            //make new tree with a new card
+            deck = deck.insert({ createCard() });   
+            std::cout << "\nCard inserted!\n";
             break;
         case 2:
-            deck = readToTree();
+            //Tree from card info in file
+            deck = readToTree(); 
             break;
         case 3:
+            //Tree to file
             writeToFile(deck);
             break;
         case 4:
+            //View in console
             deck.inorder(f2);
             break;
+        case 5:
+            //Remove card
+           deleteCardFromDeck(deck);
+           break;
         default:
-            cout << "Invalid choice, try again.\n\n";
+            //Invalid
+            std::cout << "\mInvalid choice, try again.\n\n";
             break;
         }
+        
     } while (true);
 
-        return -1;
- 
+    //Something has gone very wrong if this executes.
+    //Code shouldn't exit loop.
+    return -1;
+
 }

@@ -44,7 +44,7 @@ class Tree
     explicit Tree(std::shared_ptr<Node> const & node)
       : _root(node) {}
 
-  unsigned int numberOfNodes = 0;
+  
 public:
     //
     // The first two public constructors provide the protocol for creating a
@@ -207,6 +207,7 @@ public:
             subRoot->_val = findMin(subRoot->_rgt)->_val;   
             remove(subRoot->_val, subRoot->_rgt);
 
+            
             /*^ HOW THIS WORKS ^
             //Restructures this (sub)tree:
             //minValue found replaces value to be deleted; 
@@ -215,27 +216,29 @@ public:
             //Then, it deletes the copied minValue from its original position.
             */
         }
-
-        else                                                                                                    //CURRENT CONDITION: subRoot is leaf or has only 1 child AND val == deleteValue
+        else
         {
             std::shared_ptr<Node> oldNode = subRoot;
-            subRoot = (subRoot->_lft != nullptr) ? subRoot->_lft : subRoot->_rgt;  
-            oldNode.reset();
 
-            /*^ HOW THIS WORKS ^
-            // 
-            //subRoot passed by reference, so it now points to its only child or is nullptr:
-            // 
-            //if _lft child exists, point to left child; moves L child to subroot's place in tree
-            //else, point subroot to right child (which may also be nullptr); moves R child to subroot's place in tree
-            // 
-            //Subsequently, if it exists, the child's subtree (which it is the root of) is moved up a tier in tree 
-            // 
-            //if subRoot was a leaf, this doesn't matter; it is nullified and the shared pointer is deleted*/
+            if (subRoot == _root) // Check if the node to be removed is the root node
+            {
+                if (subRoot->_lft != nullptr)
+                    _root = subRoot->_lft;
+                else
+                    _root = subRoot->_rgt;
+            }
+            else
+            {
+                subRoot = (subRoot->_lft != nullptr) ? subRoot->_lft : subRoot->_rgt;
+            }
+
+            oldNode.reset();
         }
+        
     }
 private:
     std::shared_ptr<Node> _root;
+    unsigned int numberOfNodes = 0;
 };
 
 

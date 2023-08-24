@@ -1,5 +1,0 @@
-E:/Git Client/ExampleGit/cs417.coble/CobleOOP/apps/indexCard/out/build/x64-Debug/CMakeFiles/indexCardsTestDriver.dir
-E:/Git Client/ExampleGit/cs417.coble/CobleOOP/apps/indexCard/out/build/x64-Debug/CMakeFiles/indexCards.dir
-E:/Git Client/ExampleGit/cs417.coble/CobleOOP/apps/indexCard/out/build/x64-Debug/CMakeFiles/main.dir
-E:/Git Client/ExampleGit/cs417.coble/CobleOOP/apps/indexCard/out/build/x64-Debug/CMakeFiles/edit_cache.dir
-E:/Git Client/ExampleGit/cs417.coble/CobleOOP/apps/indexCard/out/build/x64-Debug/CMakeFiles/rebuild_cache.dir

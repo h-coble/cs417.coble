@@ -29,14 +29,18 @@ class IndexCard
 		{
 			index = newIndex;
 		}
+
+		//Output
 		void printCard()
 		{
-			std::cout << "Index: " << index << "\tKeyword: " << keyword << std::endl << std::endl;
+			std::cout << "Index: " << index << "\tKeyword: " << keyword << std::endl;
 		}
-		void printCardtoFile(ofstream fileOut)
+		void printCardToFile(ofstream fileOut)
 		{
-			fileOut << "Index: " << index << "\tKeyword: " << keyword << std::endl << std::endl;
+			fileOut << "Index: " << index << "\tKeyword: " << keyword << std::endl;
 		}
+
+		//Operator overload for BST functionality
 		bool operator<(IndexCard const& other)
 		{
 			if (index < other.index)
