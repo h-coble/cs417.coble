@@ -14,6 +14,6 @@ add_executable(indexCardsTestDriver indexCardsTestDriver.cpp)
 add_executable(indexCards indexCards.cpp)
 
 #Test code for treeDemo from CS 372
-add_executable(main main.cpp)
+#add_executable(main main.cpp)
 
 

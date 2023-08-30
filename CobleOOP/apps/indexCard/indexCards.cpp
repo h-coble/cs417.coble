@@ -100,6 +100,24 @@ void deleteCardFromDeck(Tree<IndexCard>& TreeDel)
     IndexCard deleteCard = createCard();
     TreeDel.remove(deleteCard, TreeDel.rootNode());
 }
+void searchForCard(Tree<IndexCard>& tree)
+{
+    std::cout << "This info will be used to search the deck.\n";
+    IndexCard search = createCard();
+    IndexCard found;
+    if (tree.find(search, found))
+    {
+        std::cout << "The card was found in the deck with this information:\n";
+        found.printCard();
+    }
+    else
+    {
+        search.printCard();
+        std::cout << "A card with the given info was not found in deck.\n";
+    }
+}
+
+ 
 
 int main(int argc, const char * argv[]) 
 {
@@ -139,6 +157,7 @@ int main(int argc, const char * argv[])
             << "3. Write Deck of Index Cards to File\n"
             << "4. Print Deck of Cards to Screen\n"
             << "5. Remove Index Card\n"
+            << "6. Search for Index Card\n"
             << "0. Exit\n"
             << "Enter your selection: ";
         std::cin >> choice;
@@ -174,6 +193,9 @@ int main(int argc, const char * argv[])
             //Remove card
            deleteCardFromDeck(deck);
            break;
+        case 6:
+            searchForCard(deck);
+            break;
         default:
             //Invalid
             std::cout << "\mInvalid choice, try again.\n\n";

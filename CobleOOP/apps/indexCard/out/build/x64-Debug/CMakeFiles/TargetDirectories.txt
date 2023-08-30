@@ -1,0 +1,4 @@
+F:/GitSSD/cs417.coble/CobleOOP/apps/indexCard/out/build/x64-Debug/CMakeFiles/indexCardsTestDriver.dir
+F:/GitSSD/cs417.coble/CobleOOP/apps/indexCard/out/build/x64-Debug/CMakeFiles/indexCards.dir
+F:/GitSSD/cs417.coble/CobleOOP/apps/indexCard/out/build/x64-Debug/CMakeFiles/edit_cache.dir
+F:/GitSSD/cs417.coble/CobleOOP/apps/indexCard/out/build/x64-Debug/CMakeFiles/rebuild_cache.dir

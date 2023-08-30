@@ -143,9 +143,19 @@ public:
             return left().find(x,foundValue);
         else if (y < x)
             return right().find(x,foundValue);
-        else {
-          foundValue = y;
-          return true;
+        else 
+        {
+            if (x == y)
+            {
+                foundValue = y;
+                return true;
+            }
+            else
+            {
+                std::cerr << "Index belongs to another card's keyword.\n";
+                return false;
+            }
+          
         }
     }
 

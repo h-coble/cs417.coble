@@ -48,4 +48,11 @@ class IndexCard
 			else
 				return false;
 		}
+		bool operator==(IndexCard const& other)
+		{
+			if (index == other.index && other.keyword == keyword)
+				return true;
+			else
+				return false;
+		}
 };
