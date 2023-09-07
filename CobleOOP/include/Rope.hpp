@@ -1,238 +1,213 @@
-
 #pragma once
-
-#include<string>
+#include <iostream>
+#include <string>
 #include <memory>
-#include <functional>
-#include <cassert>
-using namespace std;
 
-
-class Rope
-{
-    // The inner struct Node represents one node of the tree.  This defines the
-    // underlying structure implied by the mathematical definition of the Tree
-    // ADT
-    //
-    struct Node
-    {
-        Node(std::shared_ptr<Node> const & lft, int wght, std::string str, std::shared_ptr<Node> const & rgt)
-        : _lft(lft), weight(wght), _rgt(rgt), substr(str)
-        {}
-
-        std::shared_ptr<Node> _lft;
-        int weight;
-        std::string substr;
-        std::shared_ptr<Node> _rgt;
-    };
-
-    //
-    // And this private constructor defines how we keep track of the root of the
-    // tree while not exposing that information to clients of this class.
-    //
-    explicit Rope(std::shared_ptr<Node> const & node)
-      : _root(node) {}
-
-  
+class RopeNode {
 public:
-  
-    Rope() {}
+    std::string data;
+    int weight = data.length();
+    std::shared_ptr<RopeNode> left;
+    std::shared_ptr<RopeNode> right;
 
-    /*
-    Tree(Tree const & lft, T val, Tree const & rgt)
-    : _root(std::make_shared<Node>(lft._root, val, rgt._root))
-    {
-        assert(lft.isEmpty() || lft.root() < val);
-        assert(rgt.isEmpty() || val < rgt.root());
-    }*/
-
-    
-    Rope(std::string whole) {
-        Tree t;
-        for (T v: init) {
-            t = t.insert(v);
-        }
-        _root = t._root;
-    }
-
-    //
-    // The next portion of the protocol allows the client to query the state
-    // of the Tree.   Again, note how we avoid exposing the state to the client.
-    //
-    bool isEmpty() const { return !_root; }
-
-    size_t size() { return numberOfNodes; }
-
-    T root() const {
-        assert(!isEmpty());
-        return _root->_val;
-    }
-    std::shared_ptr<Node> rootNode()
-    {
-        return _root;
-    }
-
-    Tree left() const {
-        assert(!isEmpty());
-        return Tree(_root->_lft);
-    }
-
-    Tree right() const {
-        assert(!isEmpty());
-        return Tree(_root->_rgt);
-    }
-
-    //
-    // Now we manipulate the tree.
-    // Note insert operates... we don't try to "fix" an existing treee.
-    // Rather we build a new tree, inserting the new value at the correct point.
-    //
-    // Note also the implicit assumption about the template class... it must
-    // support the comparison operator, or mathematically, must be partially
-    // ordered.
-    //
-    Tree insert(T x) {
-      numberOfNodes++;
-        if (isEmpty())
-            return Tree(Tree(), x, Tree());
-        T y = root();
-        if (x < y)
-            return Tree(left().insert(x), y, right());
-        else if (y < x)
-            return Tree(left(), y, right().insert(x));
-        else
-        {
-            numberOfNodes--;
-            return *this; // no duplicates
-        }
-    }
-
-    bool member(T x) const {
-        if (isEmpty())
-            return false;
-        T y = root();
-        if (x < y)
-            return left().member(x);
-        else if (y < x)
-            return right().member(x);
-        else
-            return true;
-    }
-
-  bool find(T x, T &foundValue) const {
-        if (isEmpty())
-            return false;
-        T y = root();
-        if (x < y)
-            return left().find(x,foundValue);
-        else if (y < x)
-            return right().find(x,foundValue);
-        else 
-        {
-            if (x == y)
-            {
-                foundValue = y;
-                return true;
-            }
-            else
-            {
-                std::cerr << "Index belongs to another card's keyword.\n";
-                return false;
-            }
-          
-        }
-    }
-
-    //
-    // For each of traversal functions, we assume that the parameter is a
-    // function pointer, object, or lambda expression that returns void and is
-    // passed an object of type T.
-    //
-    void preorder(std::function<void(T)> visit) const {
-        if (isEmpty())
-            return;
-        T contents = root();
-        visit(contents);
-        left().preorder(visit);
-        right().preorder(visit);
-    }
-
-    void inorder(std::function<void(T)> visit) const {
-        if (isEmpty()) return;
-        left().inorder(visit);
-        T contents = root();
-        visit(contents);
-        right().inorder(visit);
-    }
-
-    void postorder(std::function<void(T)> visit) const {
-        if (isEmpty()) return;
-        left().postorder(visit);
-        right().postorder(visit);
-        T contents = root();
-        visit(contents);
-    }
-
-    std::shared_ptr<Node>findMin(std::shared_ptr<Node> root)                
-    {
-        if (root != nullptr)
-        {
-            while (root->_lft != nullptr)   //while root isn't set to left-most leaf
-            {
-                root = root->_lft;          //set root = to its left child
-            }
-        }
-        return root; //return left-most leaf
-    }
-
-    void remove( T deletionVal, std::shared_ptr<Node>& subRoot)             
-    {
-        if (subRoot == nullptr)
-            return;
-        if (deletionVal < subRoot->_val)                                                                        //CURRENT CONDITION: value is less than this node, continue down left side of tree to find it
-            
-            remove(deletionVal, subRoot->_lft);
-
-        else if (subRoot->_val < deletionVal)                                                                   //CURRENT CONDITION: value is greater, continue down right side to find node with value
-            remove(deletionVal, subRoot->_rgt);
-
-        else if (subRoot->_lft != nullptr && subRoot->_rgt != nullptr)                                          //CURRENT CONDITION: subRoot has 2 children and deleteValue == subRoot value
-        {
-            subRoot->_val = findMin(subRoot->_rgt)->_val;   
-            remove(subRoot->_val, subRoot->_rgt);
-
-            
-            /*^ HOW THIS WORKS ^
-            //Restructures this (sub)tree:
-            //minValue found replaces value to be deleted; 
-            //essentially, this is the deletion we asked for as it no longer exists in tree.
-            //
-            //Then, it deletes the copied minValue from its original position.
-            */
-        }
-        else
-        {
-            std::shared_ptr<Node> oldNode = subRoot;
-
-            if (subRoot == _root) // Check if the node to be removed is the root node
-            {
-                if (subRoot->_lft != nullptr)
-                    _root = subRoot->_lft;
-                else
-                    _root = subRoot->_rgt;
-            }
-            else
-            {
-                subRoot = (subRoot->_lft != nullptr) ? subRoot->_lft : subRoot->_rgt;
-            }
-
-            oldNode.reset();
-        }
-        
-    }
-private:
-    std::shared_ptr<Node> _root;
-    unsigned int numberOfNodes = 0;
+    RopeNode(const std::string& str) : data(str), weight(str.length()), left(nullptr), right(nullptr) {}
 };
 
+class Rope {
+private:
+
+
+    // Helper function to insert a node recursively
+    std::shared_ptr<RopeNode> insert(std::shared_ptr<RopeNode> current, const std::string& str) {
+        if (current == nullptr) {
+            return std::make_shared<RopeNode>(str);
+        }
+
+        if (str < current->data) {
+            current->left = insert(current->left, str);
+        }
+        else if (str > current->data) {
+            current->right = insert(current->right, str);
+        }
+
+        return current;
+    }
+
+
+public:
+    Rope() : root(nullptr) {}
+    std::shared_ptr<RopeNode> root;
+    // Public function to insert a string into the  Rope
+    void insert(const std::string& str) {
+        root = insert(root, str);
+        root->weight = root->data.length();
+    }
+
+    // Public function to perform an in-order traversal and print the nodes
+    void inOrderTraversal(std::shared_ptr<RopeNode> current) {
+        if (current != nullptr) {
+            inOrderTraversal(current->left);
+            std::cout << "String: " << current->data << ", Weight: " << current->weight << std::endl;
+            inOrderTraversal(current->right);
+        }
+    }
+
+    // Public function to print the entire Rope
+    void printRope() {
+        inOrderTraversal(root);
+    }
+
+    char index(int i)
+    {
+        if (i > root->left->weight)
+        {
+            //Go to right
+            return index(root->right, i - root->left->weight);
+        }
+        else if (i <= root->left->weight)
+        {
+            //Go to left
+            return index(root->left, i);
+        }
+    }
+    //Note: Canvas says to use Rope& node
+    char index(std::shared_ptr<RopeNode> node, int i)
+    {
+        if (node->data != "")
+            return node->data[i];
+        else if (i > node->left->weight)
+        {
+            //Go to right child
+            return index(node->right, i - node->left->weight);
+        }
+        else if (i <= node->left->weight)
+        {
+            //Go to left child
+            return index(node->left, i);
+        }
+        else
+            std::cerr << "Error navigating to char at given index.\n";
+    }
+
+    //Returns pointer to an internal node with two children
+    //Children have half the string of the original node
+    //Returned node has no string, but has weight = two children's sum
+
+    std::shared_ptr<RopeNode> split(int i)
+    {
+        //Root only, no children
+        if (root->left == root->right && root->right == nullptr)
+        {
+            if (i < root->data.length())
+            {
+                std::shared_ptr<RopeNode> newL;
+                newL->data = root->data;
+                newL->weight = root->weight;
+
+                root->left = newL;
+                std::shared_ptr<RopeNode> newR;
+                newR->data = "";
+                newR->weight = 1;
+
+                root->right = newR;
+                return root;
+            }
+
+        }
+        else
+        {
+            if (i > root->left->weight)
+            {
+                //Go to right
+                return split(root->right, i - root->left->weight);
+            }
+            else if (i <= root->left->weight)
+            {
+                //Go to left
+                return split(root->left, i);
+            }
+        }
+    }
+    std::shared_ptr<RopeNode> split(std::shared_ptr<RopeNode> node, int i)
+    {
+        //if node is a leaf
+        if (node->left == nullptr && node->right == nullptr)
+        {
+            if (i == node->data.length())
+            {
+                //Left Leaf
+                std::shared_ptr<RopeNode> newL;
+                newL->data = node->data;
+                newL->weight = node->weight;
+
+                node->left = newL;
+
+                //Right Leaf
+                std::shared_ptr<RopeNode> newR;
+                newR->data = "";
+                newR->weight = 1;
+
+                node->data = "";
+                node->right = newR;
+                return root;
+            }
+            else if (i < node->data.length())
+            {
+                std::string lftStr, rgtStr;
+                lftStr = rgtStr = "";
+
+                for (int j = 0; j < i; j++)
+                {
+                    lftStr[j] = node->data[j];
+                }
+                for (int j = i; j < node->data.length(); j++)
+                {
+                    rgtStr[j] = node->data[j];
+                }
+                //Left Leaf Creation
+                std::shared_ptr<RopeNode> newL;
+                newL->data = lftStr;
+                newL->weight = lftStr.length();
+
+                node->left = newL;
+                //Right Leaf Creation
+                std::shared_ptr<RopeNode> newR;
+                newR->data = rgtStr;
+                newR->weight = rgtStr.length();
+
+                node->right = newR;
+
+                node->data = "";
+                return node;
+            }
+        }
+        //else if internal node, continue to find appropriate leaf
+        else if (i > root->left->weight)
+        {
+            //Go to right
+            return split(root->right, i - root->left->weight);
+        }
+        else if (i <= root->left->weight)
+        {
+            //Go to left
+            return split(root->left, i);
+        }
+    }
+
+    std::shared_ptr<RopeNode>concat(RopeNode rope2)
+    {
+        std::shared_ptr<RopeNode> newRoot;
+
+        newRoot->left = newRoot;
+        newRoot->weight = newRoot->left->weight;
+        newRoot->right = std::make_shared<RopeNode>(rope2);
+
+        root = newRoot;
+        return root;
+    }
+
+    //Couldn't get these functions to work for the rope.
+    //Couldn't find any online resources to get more information on ropes aside from information about the boost library and STL ropes
+
+};
 

@@ -5,102 +5,219 @@
 class RopeNode {
 public:
     std::string data;
+    int weight = data.length();
     std::shared_ptr<RopeNode> left;
     std::shared_ptr<RopeNode> right;
 
-    RopeNode(const std::string& str)
-        : data(str), left(nullptr), right(nullptr) {}
+    RopeNode(const std::string& str) : data(str), weight(str.length()), left(nullptr), right(nullptr) {}
 };
 
 class Rope {
 private:
-    std::shared_ptr<RopeNode> root;
 
-    // Helper function to concatenate two ropes
-    std::shared_ptr<RopeNode> concat(std::shared_ptr<RopeNode> leftNode, std::shared_ptr<RopeNode> rightNode) {
-        std::shared_ptr<RopeNode> newNode = std::make_shared<RopeNode>("");
-        newNode->left = leftNode;
-        newNode->right = rightNode;
-        return newNode;
-    }
 
-    // Helper function to split a rope at a specific index
-    std::pair<std::shared_ptr<RopeNode>, std::shared_ptr<RopeNode>> split(std::shared_ptr<RopeNode> node, int index) {
-        if (!node) return { nullptr, nullptr };
-
-        if (index == 0) return { nullptr, node };
-        if (index >= static_cast<int>(node->data.length())) return { node, nullptr };
-
-        std::shared_ptr<RopeNode> left = nullptr;
-        std::shared_ptr<RopeNode> right = nullptr;
-
-        if (index < static_cast<int>(node->data.length())) {
-            left = std::make_shared<RopeNode>(node->data.substr(0, index));
-            right = std::make_shared<RopeNode>(node->data.substr(index));
+    // Helper function to insert a node recursively
+    std::shared_ptr<RopeNode> insert(std::shared_ptr<RopeNode> current, const std::string& str) {
+        if (current == nullptr) {
+            return std::make_shared<RopeNode>(str);
         }
 
-        return { left, right };
+        if (str < current->data) {
+            current->left = insert(current->left, str);
+        }
+        else if (str > current->data) {
+            current->right = insert(current->right, str);
+        }
+
+        return current;
     }
 
-    // Helper function to get the string representation of a rope node
-    std::string getRopeString(std::shared_ptr<RopeNode> node) {
-        if (!node) return "";
-        if (!node->left && !node->right) return node->data;
-        return getRopeString(node->left) + getRopeString(node->right);
-    }
 
 public:
     Rope() : root(nullptr) {}
-
-    // Insert a string at a specific index
-    void insert(const std::string& str, int index) {
-        auto splitNodes = split(root, index);
-        auto newNode = std::make_shared<RopeNode>(str);
-        root = concat(concat(splitNodes.first, newNode), splitNodes.second);
+    std::shared_ptr<RopeNode> root;
+    // Public function to insert a string into the  Rope
+    void insert(const std::string& str) {
+        root = insert(root, str);
+        root->weight = root->data.length();
     }
 
-    // Delete characters in the range [start, end)
-    void remove(int start, int end) {
-        auto split1 = split(root, start);
-        auto split2 = split(split1.second, end - start);
-        root = concat(split1.first, split2.second);
+    // Public function to perform an in-order traversal and print the nodes
+    void inOrderTraversal(std::shared_ptr<RopeNode> current) {
+        if (current != nullptr) {
+            inOrderTraversal(current->left);
+            std::cout << "String: " << current->data << ", Weight: " << current->weight << std::endl;
+            inOrderTraversal(current->right);
+        }
     }
 
-    // Retrieve a substring in the range [start, end)
-    std::string substring(int start, int end) {
-        auto split1 = split(root, start);
-        auto split2 = split(split1.second, end - start);
-        std::string result = getRopeString(split2.first);
-        root = concat(split1.first, concat(split2.first, split2.second));
-        return result;
+    // Public function to print the entire Rope
+    void printRope() {
+        inOrderTraversal(root);
     }
 
-    // Concatenate two ropes
-    void concat(Rope& other) {
-        root = concat(root, other.root);
-        other.root = nullptr; // Clear the other rope
+    char index(int i)
+    {
+        if (i > root->left->weight)
+        {
+            //Go to right
+            return index(root->right, i - root->left->weight);
+        }
+        else if (i <= root->left->weight)
+        {
+            //Go to left
+            return index(root->left, i);
+        }
+    }
+    //Note: Canvas says to use Rope& node
+    char index(std::shared_ptr<RopeNode> node, int i)
+    {
+        if (node->data != "")
+            return node->data[i];
+        else if (i > node->left->weight)
+        {
+            //Go to right child
+            return index(node->right, i - node->left->weight);
+        }
+        else if (i <= node->left->weight)
+        {
+            //Go to left child
+            return index(node->left, i);
+        }
+        else
+            std::cerr << "Error navigating to char at given index.\n";
     }
 
-    // Get the string representation of the rope
-    std::string toString() {
-        return getRopeString(root);
+    //Returns pointer to an internal node with two children
+    //Children have half the string of the original node
+    //Returned node has no string, but has weight = two children's sum
+
+    std::shared_ptr<RopeNode> split(int i)
+    {
+        //Root only, no children
+        if (root->left == root->right && root->right == nullptr)
+        {
+            if (i < root->data.length())
+            {
+                std::shared_ptr<RopeNode> newL;
+                newL->data = root->data;
+                newL->weight = root->weight;
+
+                root->left = newL;
+                std::shared_ptr<RopeNode> newR;
+                newR->data = "";
+                newR->weight = 1;
+
+                root->right = newR;
+                return root;
+            }
+
+        }
+        else
+        {
+            if (i > root->left->weight)
+            {
+                //Go to right
+                return split(root->right, i - root->left->weight);
+            }
+            else if (i <= root->left->weight)
+            {
+                //Go to left
+                return split(root->left, i);
+            }
+        }
     }
+    std::shared_ptr<RopeNode> split(std::shared_ptr<RopeNode> node, int i)
+    {
+        //if node is a leaf
+        if (node->left == nullptr && node->right == nullptr)
+        {
+            if (i == node->data.length())
+            {
+                //Left Leaf
+                std::shared_ptr<RopeNode> newL;
+                newL->data = node->data;
+                newL->weight = node->weight;
+
+                node->left = newL;
+
+                //Right Leaf
+                std::shared_ptr<RopeNode> newR;
+                newR->data = "";
+                newR->weight = 1;
+
+                node->data = "";
+                node->right = newR;
+                return root;
+            }
+            else if (i < node->data.length())
+            {
+                std::string lftStr, rgtStr;
+                lftStr = rgtStr = "";
+
+                for (int j = 0; j < i; j++)
+                {
+                    lftStr[j] = node->data[j];
+                }
+                for (int j = i; j < node->data.length(); j++)
+                {
+                    rgtStr[j] = node->data[j];
+                }
+                //Left Leaf Creation
+                std::shared_ptr<RopeNode> newL;
+                newL->data = lftStr;
+                newL->weight = lftStr.length();
+
+                node->left = newL;
+                //Right Leaf Creation
+                std::shared_ptr<RopeNode> newR;
+                newR->data = rgtStr;
+                newR->weight = rgtStr.length();
+
+                node->right = newR;
+
+                node->data = "";
+                return node;
+            }
+        }
+        //else if internal node, continue to find appropriate leaf
+        else if (i > root->left->weight)
+        {
+            //Go to right
+            return split(root->right, i - root->left->weight);
+        }
+        else if (i <= root->left->weight)
+        {
+            //Go to left
+            return split(root->left, i);
+        }
+    }
+
+    std::shared_ptr<RopeNode>concat(RopeNode rope2)
+    {
+        std::shared_ptr<RopeNode> newRoot;
+
+        newRoot->left = newRoot;
+        newRoot->weight = newRoot->left->weight;
+        newRoot->right = std::make_shared<RopeNode>(rope2);
+
+        root = newRoot;
+        return root;
+    }
+
+    //Couldn't get these functions to work for the rope.
+    //Couldn't find any online resources to get more information on ropes aside from information about the boost library and STL ropes
+
 };
 
 int main() {
     Rope rope;
-    rope.insert("Hello, ", 0);
-    rope.insert("world!", 7);
-    std::cout << rope.toString() << std::endl;
 
-    rope.remove(5, 13);
-    std::cout << rope.toString() << std::endl;
+    rope.insert("apple");
+    rope.root = rope.split(3);
 
-    Rope other;
-    other.insert("This is another ", 0);
-    other.insert("rope.", 16);
-    rope.concat(other);
-    std::cout << rope.toString() << std::endl;
+    std::cout << "Rope Contents:" << std::endl;
+    rope.printRope();
 
     return 0;
 }
