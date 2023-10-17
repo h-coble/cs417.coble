@@ -9,16 +9,16 @@ class Subject(ABC):
     def register(self,observer):
         self.observers.append(observer)
 
-    def notifyAll(self,*args,**kwargs):
-        for observer in self.observers:
-            observer.notify(self,*args,**kwargs)
+    @abstractmethod
+    def notifyAll(self, args, kwargs):
+        pass
 
 class Observer(ABC):
     def __init__(self,subject):
         subject.register(self)
 
     @abstractmethod
-    def notify(self,subject,*args):
+    def notify(self,subject,args):
         pass
 
 class ConcreteSubject(Subject):
@@ -26,47 +26,57 @@ class ConcreteSubject(Subject):
         self.observers = []
         self.items = {}
 
+    def notifyAll(self, args, kwargs):
+        for observer in self.observers:
+            observer.notify(self,args,kwargs)
+
     #* and ** issue
-    def append(self,entries*,keys**):
+    def append(self, entries, keywords):
         changed = False
         for i in range(len(entries)):
             # Exception here
-            self.items[keys[i]] = entries[i]
+            self.items[keywords[i]] = entries[i]
             changed = True
         if changed:
-            self.notifyAll(entries,keys)
+            self.notifyAll(entries, keywords)
+            changed = False
         
 
-    def delete(self,**keys):
+    def delete(self,keysDel):
         deletion = False
-        for key in keys and self.items.keys():
-            self.items.pop(key)
-            deletion = True
+        tempDict = {k: v for k, v in self.items.items()}
+        for key in keysDel:
+            if key in tempDict.keys():
+                self.items.pop(key)
+                deletion = True
         if deletion:
-            self.notifyAllDel(keys)
+            self.notifyAllDel(keysDel)
+        del tempDict
 
-    def notifyAll(self,**kwargs):
+    def notifyAllDel(self,kwargs):
         for observer in self.observers:
-            observer.notify(self,**kwargs)
+            observer.notifyDel(kwargs, self)
 
 
 class ConcreteObserver(Observer):
     def _init__(self):
         super.__init__(self)
 
-    def notify(self,subject,*args, **keys):
+    def notify(self, subject, args, keys):
         print(type(self).__name__,':: Got', args,'From',subject,'with',keys,'as keys')
 
-    def notifyDel(self,subject,**keys):
+    def notifyDel(self, keys, subject):
         print(type(self).__name__,':: Items with', keys, 'as key deleted from',subject)
 
 
 sub = ConcreteSubject()
 obs = ConcreteObserver(sub)
-sub.register(obs)
 
-keywords = ["First","Middle","Last"]
+key = ["First","Middle","Last"]
 data = ["Hayden","Eli","Coble"]
 
-sub.append(data,keywords)
-    
+sub.append(data, key)
+
+sub.delete(["Middle"])
+print("ree")
+
