@@ -12,7 +12,7 @@ include_directories(../../include)
 
 add_executable(logger loggerTest.cpp)
 add_executable(factory factoryTest.cpp)
-
+add_executable(finalQ1 finalQ1.cpp)
 
 
 
